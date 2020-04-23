@@ -1,0 +1,4 @@
+set(METADATA_VERSION "1")
+set(PROJECT_NAME "Multicore_Example1")
+set(DEVICE_COMPLETE_NAME "TC27xTP_DC-step")
+set(DEVICE_NAME "TC27D")
