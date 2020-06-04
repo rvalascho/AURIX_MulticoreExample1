@@ -284,20 +284,70 @@ IF &progflash
   ; Enable flash programming
   FLASH.ReProgram.ALL
 
-  Data.LOAD.elf C:\Users\valascho\AURIX-v1.1.6-workspace\Multicore_Example1\Debug\Multicore_Example1.elf
+  Data.LOAD.elf C:\Users\valascho\AURIX-v1.1.6-workspace\Multicore_Example1\Debug\Multicore_Example1.elf /NOCODE
   System.Option.Dualport ON
   
-  SYStem.Option DataTrace ON
+  ;SYStem.Option DataTrace ON
+
+  &address_data="0xB0000000--0xB0000008"
+
+  &address_program="0x80002E58--0x80002F58"
+  ;a simple address can be provided too
+
+  ; Reset to MCDS default settings
+  MCDS.RESet
+
+  ; Enable MCDS time stamps
+  MCDS.TimeStamp ON
+  ; Enable automatic clock calculation
+  CLOCK.ON
+
+  ; optionally disable TriCore0 POB
+  MCDS.SOURCE.Set CpuMux0.Core Tricore0
+  MCDS.SOURCE.CpuMux0.Program ON
+  MCDS.SOURCE.CpuMux0.PTMODE CFT
+
+  Break.Set &address_program /Program /TraceEnable
+
+
+  ; Configure LMU as SRI 1 slave
+  MCDS.SOURCE.Set SRI.1.SLAVE LMU
+
+  ; Configure SRI1 address pre-trigger
+  MCDS.Set SRI EAddr0_1 &address_data
+
+  ;MCDS.Set CpuMux0 EVT
+
+  ; Connect the pre-trigger to EVT0
+  MCDS.Set SRI EVT0 EAddr0_1
+
+  ; Set actions read-address, read-data, write-address and write-data to trigger when EVT0
+  MCDS.Set SRI ACT DTU_RADR1 aisAUTO EVT0
+  MCDS.Set SRI ACT DTU_RDAT1 aisAUTO EVT0
+  MCDS.Set SRI ACT DTU_WADR1 aisAUTO EVT0
+  MCDS.Set SRI ACT DTU_WDAT1 aisAUTO EVT0
+
+  Trace.Method Onchip
+
+  ;Trace.List BusMaster DEFault
+
+  ;Examples of Bus Master Filters
+  ;MCDS.Set SRI ACCess0_1 DMA_RP0 DMA0
+
+  ;MCDS.Set SRI ACCess0_1 CPU1
+  ;MCDS.Set SRI EVT0 ACCess0_1
+
+
   
-    WinCLEAR
-    WinPOS 0% 0% 100% 50%
-    List.auto
-    WinPOS 0% 50% 50% 50%
-    Frame /Locals /Caller
-    WinPOS 50% 50% 50% 50%
-    Var.Watch
-    Var.AddWatch spinlock_var
-    Var.AddWatch test_data
+    ;WinCLEAR
+    ;WinPOS 0% 0% 100% 50%
+    ;List.auto
+    ;WinPOS 0% 50% 50% 50%
+    ;Frame /Locals /Caller
+    ;WinPOS 50% 50% 50% 50%
+    ;Var.Watch
+    ;Var.AddWatch spinlock_var
+    ;Var.AddWatch test_data
 
   ; Use the following commands to manually program a valid default BMHD (see comment above)
   ; Data.Set 0xA0000000++0x17 %Long 0xA0000020 0xB3590070 0x00000000 0x00000000 0x00000000 0x00000000
